@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -350,4 +353,93 @@ func TestParseIDs(t *testing.T) {
 			t.Errorf("len = %d, want %d", len(got), maxIDs)
 		}
 	})
+}
+
+func TestThemeColorMatchesManifest(t *testing.T) {
+	var manifest struct {
+		ThemeColor string `json:"theme_color"`
+	}
+	raw, err := os.ReadFile(filepath.Join("..", "..", "static", "site.webmanifest"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatalf("parse manifest: %v", err)
+	}
+
+	// Browsers let the meta tag override the manifest, so a drifting pair
+	// shows one colour in the tab and another in the installed app.
+	metaColor := regexp.MustCompile(`<meta name="theme-color" content="([^"]*)">`)
+	for _, name := range []string{"home.html", "offline.html"} {
+		t.Run(name, func(t *testing.T) {
+			page, err := os.ReadFile(filepath.Join("..", "..", "templates", name))
+			if err != nil {
+				t.Fatal(err)
+			}
+			found := metaColor.FindAllStringSubmatch(string(page), -1)
+			if len(found) != 1 {
+				t.Fatalf("got %d theme-color metas, want 1", len(found))
+			}
+			if found[0][1] != manifest.ThemeColor {
+				t.Errorf("theme-color = %q, manifest theme_color = %q", found[0][1], manifest.ThemeColor)
+			}
+		})
+	}
+}
+
+func TestManifestShortcuts(t *testing.T) {
+	var manifest struct {
+		Scope     string `json:"scope"`
+		StartURL  string `json:"start_url"`
+		Shortcuts []struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"shortcuts"`
+	}
+	raw, err := os.ReadFile(filepath.Join("..", "..", "static", "site.webmanifest"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatalf("parse manifest: %v", err)
+	}
+	if len(manifest.Shortcuts) == 0 {
+		t.Fatal("no shortcuts declared")
+	}
+
+	base, err := url.Parse(manifest.Scope)
+	if err != nil {
+		t.Fatalf("parse scope: %v", err)
+	}
+	start, err := base.Parse(manifest.StartURL)
+	if err != nil {
+		t.Fatalf("parse start_url: %v", err)
+	}
+
+	// An empty path and "/" name the same resource, so compare canonical forms.
+	canonical := func(u *url.URL) url.URL {
+		c := *u
+		if c.Path == "" {
+			c.Path = "/"
+		}
+		return c
+	}
+	scope, startURL := canonical(base), canonical(start)
+
+	for _, sc := range manifest.Shortcuts {
+		t.Run(sc.Name, func(t *testing.T) {
+			parsed, err := base.Parse(sc.URL)
+			if err != nil {
+				t.Fatalf("parse url: %v", err)
+			}
+			target := canonical(parsed)
+			if target.Host != scope.Host || !strings.HasPrefix(target.Path, scope.Path) {
+				t.Errorf("%s resolves to %s, outside scope %s", sc.URL, &target, &scope)
+			}
+			// A shortcut landing on start_url adds nothing to the launcher menu.
+			if target.String() == startURL.String() {
+				t.Errorf("%s is start_url", sc.URL)
+			}
+		})
+	}
 }
