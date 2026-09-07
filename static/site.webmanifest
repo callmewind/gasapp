@@ -109,10 +109,6 @@
         "id": "es.dropdatabase.gasapp.twa"
       }
     ],
-    "scope_extensions": [
-        { "origin": "gasapp.dropdatabase.es" },
-        { "origin": "⛽.dropdatabase.es" }
-    ],
     "protocol_handlers": [
       {
             "protocol": "web+gasapp",
