@@ -197,7 +197,18 @@
         fuel = localStorage.getItem('fuel') || 'petrol95',
         currentStationId = null,
         lat, lon, stationId;
-    [lat, lon, stationId] = location.hash.replace('#','').split(',', 3);
+    // A web+gasapp:// launch substitutes the whole percent-encoded URL for %s,
+    // so the hash is not always the bare lat,lon,id triple.
+    let hash = location.hash.replace('#','');
+    try {
+        hash = decodeURIComponent(hash);
+    } catch (e) {}
+    [lat, lon, stationId] = hash.replace(/^web\+gasapp:\/*/, '').split(',', 3);
+    lat = parseFloat(lat);
+    lon = parseFloat(lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        lat = lon = undefined;
+    }
     const savedView = (() => {
         try {
             const v = JSON.parse(localStorage.getItem('view'));
