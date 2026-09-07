@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -350,4 +352,36 @@ func TestParseIDs(t *testing.T) {
 			t.Errorf("len = %d, want %d", len(got), maxIDs)
 		}
 	})
+}
+
+func TestThemeColorMatchesManifest(t *testing.T) {
+	var manifest struct {
+		ThemeColor string `json:"theme_color"`
+	}
+	raw, err := os.ReadFile(filepath.Join("..", "..", "static", "site.webmanifest"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		t.Fatalf("parse manifest: %v", err)
+	}
+
+	// Browsers let the meta tag override the manifest, so a drifting pair
+	// shows one colour in the tab and another in the installed app.
+	metaColor := regexp.MustCompile(`<meta name="theme-color" content="([^"]*)">`)
+	for _, name := range []string{"home.html", "offline.html"} {
+		t.Run(name, func(t *testing.T) {
+			page, err := os.ReadFile(filepath.Join("..", "..", "templates", name))
+			if err != nil {
+				t.Fatal(err)
+			}
+			found := metaColor.FindAllStringSubmatch(string(page), -1)
+			if len(found) != 1 {
+				t.Fatalf("got %d theme-color metas, want 1", len(found))
+			}
+			if found[0][1] != manifest.ThemeColor {
+				t.Errorf("theme-color = %q, manifest theme_color = %q", found[0][1], manifest.ThemeColor)
+			}
+		})
+	}
 }
