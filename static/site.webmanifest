@@ -48,7 +48,7 @@
         "preferred_width": 400
     },
     "orientation": "any",
-    "categories": ["travel", "business", "finance"],
+    "categories": ["navigation", "travel", "business", "finance"],
     "screenshots" : [
         {
             "src": "/static/screenshot-narrow-map.jpeg",
@@ -117,9 +117,9 @@
     ],
     "shortcuts": [
       {
-            "name": "Mapa",
-            "url": "/",
-            "description": "Mapa de gasolineras"
+            "name": "Favoritos",
+            "url": "/?favoritos",
+            "description": "Tus gasolineras favoritas"
       }
     ]
 }

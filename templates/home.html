@@ -520,6 +520,10 @@
     }
     updateStations();
     renderFavorites();
+    // Landing spot for the "Favoritos" shortcut in site.webmanifest.
+    if (new URLSearchParams(location.search).has('favoritos')) {
+        openFavorites();
+    }
 
     map.attributionControl.setPrefix(false);
 
