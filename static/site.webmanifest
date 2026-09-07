@@ -52,25 +52,53 @@
     "categories": ["travel", "business", "finance"],
     "screenshots" : [
         {
-            "src": "/static/android-overview.jpeg",
+            "src": "/static/screenshot-narrow-map.jpeg",
             "sizes": "720x1440",
             "type": "image/jpeg",
-            "platform": "narrow",
-            "label": "Descubre de un vistazo las gasolineras cercanas"
+            "form_factor": "narrow",
+            "label": "Precios de las gasolineras de tu zona, de un vistazo"
         },
         {
-            "src": "/static/android-detail.jpeg",
+            "src": "/static/screenshot-narrow-station.jpeg",
             "sizes": "720x1440",
             "type": "image/jpeg",
-            "platform": "narrow",
-            "label": "Compara precios y obtén la ruta en coche"
+            "form_factor": "narrow",
+            "label": "Compara precios, consulta el histórico y obtén la ruta"
         },
         {
-            "src": "/static/android-selection.jpeg",
+            "src": "/static/screenshot-narrow-favorites.jpeg",
             "sizes": "720x1440",
             "type": "image/jpeg",
-            "platform": "narrow",
+            "form_factor": "narrow",
+            "label": "Guarda tus gasolineras favoritas"
+        },
+        {
+            "src": "/static/screenshot-narrow-fuel.jpeg",
+            "sizes": "720x1440",
+            "type": "image/jpeg",
+            "form_factor": "narrow",
             "label": "Selecciona el combustible de tu coche"
+        },
+        {
+            "src": "/static/screenshot-wide-map.jpeg",
+            "sizes": "1920x1080",
+            "type": "image/jpeg",
+            "form_factor": "wide",
+            "label": "Mapa de precios con las gasolineras más baratas en verde"
+        },
+        {
+            "src": "/static/screenshot-wide-station.jpeg",
+            "sizes": "1920x1080",
+            "type": "image/jpeg",
+            "form_factor": "wide",
+            "label": "Detalle de la estación con histórico de precios"
+        },
+        {
+            "src": "/static/screenshot-wide-favorites.jpeg",
+            "sizes": "1920x1080",
+            "type": "image/jpeg",
+            "form_factor": "wide",
+            "label": "Tus gasolineras favoritas siempre a mano"
         }
     ],
     "iarc_rating_id": "5c6a16b9-2dfc-4d24-a4d8-ce47dbca6746",
